@@ -1,0 +1,167 @@
+body {
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+}
+
+input.form-control:focus,
+select.form-control:focus,
+textarea.form-control:focus,
+button.btn:focus {
+  outline: none;
+  box-shadow: none; /* Optional: Remove box-shadow as well */
+}
+
+.btn {
+  font-size: 14px !important;
+  border-radius: 10px !important;
+}
+
+/* Sidebar */
+.sidebar-nav .nav-title,
+.sidebar-nav .nav-link {
+  font-size: 14px;
+}
+/* End Sidebar */
+
+/* card-data */
+.card-data {
+  border: 1px solid #eff;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.card-data .card-header {
+  background-color: transparent;
+  border-bottom-style: dashed;
+  border-radius: 0 !important;
+  display: flex;
+  justify-content: space-between;
+}
+
+.card-data .card-header .title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.card-data .card-header .sub-title {
+  font-size: 14px;
+  font-weight: 400;
+  padding: 0;
+  line-height: 0;
+  opacity: 0.9;
+}
+
+.card-data .card-header .action-container {
+  display: flex;
+  align-items: center;
+}
+
+/* End card-data */
+
+/* Table Action */
+.table-action-container .search,
+.table-action-container .filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #eee;
+  padding: 10px 15px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.table-action-container .search .form-control,
+.table-action-container .filter .form-control {
+  border: none;
+  padding: 0;
+  font-size: 14px;
+}
+
+.table-action-container .filter {
+  width: 200px;
+}
+
+/* End Table Action */
+
+/* Table Data */
+
+.table-data {
+  font-size: 14px;
+  border: 1px solid #eee;
+  margin: 10px 0;
+}
+
+.table-data th,
+.table-data td {
+  padding: 10px 15px;
+  border: 1px solid #eee;
+  padding: 10px 15px;
+}
+
+/* End Table Data */
+
+/* Pagination */
+.pagination {
+  margin-top: 10px;
+}
+.pagination .page-item {
+}
+
+.pagination .page-item .page-link {
+  font-size: 14px;
+  border-width: 1px;
+  border-radius: 0;
+}
+
+.pagination .page-item:last-child .page-link {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.pagination .page-item:first-child .page-link {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.table tr td:first-child,
+.table tr th:first-child {
+  max-width: 30px;
+  text-align: center;
+}
+
+.table tr td:last-child,
+.table tr th:last-child {
+  text-align: center;
+}
+/* End Pagination */
+
+/* Form */
+.form-group .form-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form-group .form-control,
+.form-check .form-check-label {
+  font-size: 14px;
+}
+
+.form-group .invalid-feedback,
+.form-check .invalid-feedback {
+  font-size: 12px;
+}
+
+/* End Form */
+
+/* breadcrumb */
+.header-sticky .breadcrumb {
+  font-size: 14px;
+}
+/* End breadcrumb */
+
+/* Footer */
+.footer {
+  font-size: 14px;
+}
+/* End Footer */
