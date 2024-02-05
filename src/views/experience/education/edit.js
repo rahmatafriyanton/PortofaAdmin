@@ -1,28 +1,58 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import useAxiosPrivate from 'src/hooks/useAxiosPrivate'
+import ReactQuill from 'react-quill' // Import library ReactQuill
+import 'react-quill/dist/quill.snow.css' // Import style untuk Quill
 
 const EditEducations = () => {
   const navigate = useNavigate()
+  const { id } = useParams()
+  const axiosPrivate = useAxiosPrivate()
 
   const [formData, setFormData] = useState({
-    nama: '',
-    instansi: '',
-    jurusan: '',
-    tahunMulai: '',
-    tahunBerakhir: '',
-    sedangBerjalan: false,
+    institution: '',
+    degree: '',
+    major: '',
+    period_start: null,
+    period_end: null,
+    is_current: false,
   })
 
   const [errors, setErrors] = useState({
-    nama: '',
-    instansi: '',
-    jurusan: '',
-    tahunMulai: '',
-    tahunBerakhir: '',
+    institution: '',
+    degree: '',
+    major: '',
+    period_start: '',
+    period_end: '',
   })
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
+  const fetchDetail = async () => {
+    try {
+      const response = await axiosPrivate.get(`/experience/educations/${id}`)
+      const data = response.data
+
+      setFormData({
+        institution: data.institution,
+        degree: data.degree,
+        major: data.major,
+        period_start: data.period_start,
+        period_end: data.period_end,
+        is_current: data.period_end === null,
+      })
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchDetail()
+  }, [])
+
+  const handleChange = (name, value) => {
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -33,8 +63,7 @@ const EditEducations = () => {
     }))
   }
 
-  const handleCheckboxChange = (e) => {
-    const { name, checked } = e.target
+  const handleCheckboxChange = (name, checked) => {
     setFormData((prevData) => ({
       ...prevData,
       [name]: checked,
@@ -45,52 +74,77 @@ const EditEducations = () => {
     }))
   }
 
-  const handleBack = () => {
-    navigate('/experience/education')
-  }
-
   const validateForm = () => {
     let isValid = true
     const newErrors = {}
 
-    // Validasi Nama Pendidikan
-    if (!formData.nama.trim()) {
-      newErrors.nama = 'Nama Pendidikan harus diisi'
+    if (!formData.institution.trim()) {
+      newErrors.institution = 'Nama Institusi harus diisi'
       isValid = false
     }
 
-    // Validasi Instansi
-    if (!formData.instansi.trim()) {
-      newErrors.instansi = 'Instansi harus diisi'
+    if (!formData.degree.trim()) {
+      newErrors.degree = 'Tingkat harus diisi'
       isValid = false
     }
 
-    // Validasi Jurusan
-    if (!formData.jurusan.trim()) {
-      newErrors.jurusan = 'Jurusan harus diisi'
+    if (!formData.period_start) {
+      newErrors.period_start = 'Tahun Mulai harus diisi'
       isValid = false
     }
 
-    // Validasi Tahun Mulai
-    if (!formData.tahunMulai.trim()) {
-      newErrors.tahunMulai = 'Tahun Mulai harus diisi'
-      isValid = false
-    }
-
-    // Validasi Tahun Berakhir jika tidak sedang berjalan
-    if (!formData.sedangBerjalan && !formData.tahunBerakhir.trim()) {
-      newErrors.tahunBerakhir = 'Tahun Berakhir harus diisi'
+    if (!formData.is_current && !formData.period_end) {
+      newErrors.period_end = 'Tahun Berakhir harus diisi'
       isValid = false
     }
 
     setErrors(newErrors)
+
     return isValid
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (validateForm()) {
-      // Todo: Tambahkan logika penyimpanan data pendidikan
-      console.log('Data yang akan disimpan:', formData)
+      try {
+        const response = await axiosPrivate.put(`/experience/educations/${id}`, {
+          institution: formData.institution,
+          degree: formData.degree,
+          major: formData.major,
+          period_start: formData.period_start,
+          period_end: formData.is_current ? null : formData.period_end,
+        })
+
+        console.log('Data saved successfully:', response.data)
+
+        // Menampilkan Toast sukses
+        toast.success('Data saved successfully', {
+          position: 'top-right',
+          autoClose: 3000, // Waktu tampilan Toast dalam milidetik
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        })
+
+        // TODO: Handle success, misalnya, redirect ke halaman daftar pekerjaan
+        navigate('/experience/education')
+      } catch (error) {
+        console.error('Error saving data:', error)
+
+        // Menampilkan Toast kesalahan
+        toast.error('Error saving data. Please try again.', {
+          position: 'top-center',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        })
+
+        // TODO: Handle error, misalnya, menampilkan pesan kesalahan
+      }
     } else {
       console.log('Form tidak valid. Mohon isi semua field yang diperlukan.')
     }
@@ -106,118 +160,124 @@ const EditEducations = () => {
               <p className="sub-title">Isi formulir untuk mengedit pengalaman pendidikan Anda</p>
             </div>
             <div className="action-container">
-              <button className="btn btn-secondary btn-back btn-sm" onClick={handleBack}>
+              <button
+                className="btn btn-secondary btn-back btn-sm"
+                onClick={() => navigate('/experience/education')}
+              >
                 <i className="fa fa-chevron-left"></i> Kembali
               </button>
             </div>
           </div>
           <div className="card-body">
-            {/* Form Edit pendidikan */}
             <form>
               <div className="row">
-                <div className="col-md-6">
-                  <div className="form-group mb-3">
-                    <label htmlFor="namaPendidikan" className="form-label">
-                      Nama Pendidikan
-                    </label>
-                    <input
-                      type="text"
-                      className={`form-control ${errors.nama ? 'is-invalid' : ''}`}
-                      id="namaPendidikan"
-                      name="nama"
-                      value={formData.nama}
-                      onChange={handleChange}
-                      required
-                    />
-                    {errors.nama && <div className="invalid-feedback">{errors.nama}</div>}
-                  </div>
-                </div>
-                <div className="col-md-6">
-                  <div className="form-group mb-3">
-                    <label htmlFor="instansi" className="form-label">
-                      Instansi
-                    </label>
-                    <input
-                      type="text"
-                      className={`form-control ${errors.instansi ? 'is-invalid' : ''}`}
-                      id="instansi"
-                      name="instansi"
-                      value={formData.instansi}
-                      onChange={handleChange}
-                      required
-                    />
-                    {errors.instansi && <div className="invalid-feedback">{errors.instansi}</div>}
-                  </div>
-                </div>
-              </div>
-
-              <div className="row">
                 <div className="col-md-4">
                   <div className="form-group mb-3">
-                    <label htmlFor="jurusan" className="form-label">
-                      Jurusan
+                    <label htmlFor="institution" className="form-label">
+                      Nama Institusi
                     </label>
                     <input
                       type="text"
-                      className={`form-control ${errors.jurusan ? 'is-invalid' : ''}`}
-                      id="jurusan"
-                      name="jurusan"
-                      value={formData.jurusan}
-                      onChange={handleChange}
+                      className={`form-control ${errors.institution ? 'is-invalid' : ''}`}
+                      id="institution"
+                      name="institution"
+                      value={formData.institution}
+                      onChange={(e) => handleChange('institution', e.target.value)}
                       required
                     />
-                    {errors.jurusan && <div className="invalid-feedback">{errors.jurusan}</div>}
-                  </div>
-                </div>
-
-                <div className="col-md-4">
-                  <div className="form-group mb-3">
-                    <label htmlFor="tahunMulai" className="form-label">
-                      Tahun Mulai
-                    </label>
-                    <input
-                      type="text"
-                      className={`form-control ${errors.tahunMulai ? 'is-invalid' : ''}`}
-                      id="tahunMulai"
-                      name="tahunMulai"
-                      value={formData.tahunMulai}
-                      onChange={handleChange}
-                      required
-                    />
-                    {errors.tahunMulai && (
-                      <div className="invalid-feedback">{errors.tahunMulai}</div>
+                    {errors.institution && (
+                      <div className="invalid-feedback">{errors.institution}</div>
                     )}
                   </div>
                 </div>
                 <div className="col-md-4">
                   <div className="form-group mb-3">
-                    <label htmlFor="tahunBerakhir" className="form-label">
-                      Tahun Berakhir
+                    <label htmlFor="degree" className="form-label">
+                      Tingkat
                     </label>
                     <input
                       type="text"
-                      className={`form-control ${errors.tahunBerakhir ? 'is-invalid' : ''}`}
-                      id="tahunBerakhir"
-                      name="tahunBerakhir"
-                      value={formData.tahunBerakhir}
-                      onChange={handleChange}
-                      disabled={formData.sedangBerjalan}
-                      required={!formData.sedangBerjalan}
+                      className={`form-control ${errors.degree ? 'is-invalid' : ''}`}
+                      id="degree"
+                      name="degree"
+                      value={formData.degree}
+                      onChange={(e) => handleChange('degree', e.target.value)}
+                      required
                     />
-                    {errors.tahunBerakhir && (
-                      <div className="invalid-feedback">{errors.tahunBerakhir}</div>
+                    {errors.degree && <div className="invalid-feedback">{errors.degree}</div>}
+                  </div>
+                </div>
+
+                <div className="col-md-4">
+                  <div className="form-group mb-3">
+                    <label htmlFor="major" className="form-label">
+                      Jurusan
+                    </label>
+                    <input
+                      type="text"
+                      className={`form-control ${errors.major ? 'is-invalid' : ''}`}
+                      id="major"
+                      name="major"
+                      value={formData.major}
+                      onChange={(e) => handleChange('major', e.target.value)}
+                    />
+                    {errors.major && <div className="invalid-feedback">{errors.major}</div>}
+                  </div>
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="col-md-6">
+                  <div className="form-group mb-3">
+                    <label htmlFor="period_start" className="form-label">
+                      Tahun Mulai
+                    </label>
+                    <DatePicker
+                      selected={formData.period_start}
+                      onChange={(date) => handleChange('period_start', date)}
+                      dateFormat="MMMM yyyy"
+                      showMonthYearPicker
+                      className={`form-control ${errors.period_start ? 'is-invalid' : ''}`}
+                      id="period_start"
+                      name="period_start"
+                      required
+                    />
+                    {errors.period_start && (
+                      <div className="invalid-feedback">{errors.period_start}</div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <div className="form-group mb-3">
+                    <label htmlFor="period_end" className="form-label">
+                      Tahun Berakhir
+                    </label>
+                    <DatePicker
+                      selected={formData.period_end}
+                      onChange={(date) => handleChange('period_end', date)}
+                      dateFormat="MMMM yyyy"
+                      showMonthYearPicker
+                      className={`form-control ${errors.period_end ? 'is-invalid' : ''}`}
+                      id="period_end"
+                      name="period_end"
+                      disabled={formData.is_current}
+                      required={!formData.is_current}
+                    />
+                    {errors.period_end && (
+                      <div className="invalid-feedback">{errors.period_end}</div>
                     )}
                   </div>
                   <div className="mb-3 form-check">
                     <input
                       type="checkbox"
                       className="form-check-input"
-                      id="sedangBerjalan"
-                      name="sedangBerjalan"
-                      checked={formData.sedangBerjalan}
-                      onChange={handleCheckboxChange}
+                      id="is_current"
+                      name="is_current"
+                      checked={formData.is_current}
+                      onChange={(e) => handleCheckboxChange('is_current', e.target.checked)}
                     />
-                    <label className="form-check-label" htmlFor="sedangBerjalan">
+                    <label className="form-check-label" htmlFor="is_current">
                       Sedang Berjalan
                     </label>
                   </div>
@@ -225,7 +285,7 @@ const EditEducations = () => {
               </div>
 
               <div className="d-flex justify-content-end">
-                <button type="button" className="btn btn-primary " onClick={handleSave}>
+                <button type="button" className="btn btn-primary" onClick={handleSave}>
                   Simpan
                 </button>
               </div>

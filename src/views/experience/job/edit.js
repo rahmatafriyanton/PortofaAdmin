@@ -1,72 +1,57 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import useAxiosPrivate from 'src/hooks/useAxiosPrivate'
+import ReactQuill from 'react-quill' // Import library ReactQuill
+import 'react-quill/dist/quill.snow.css' // Import style untuk Quill
 
 const EditJobs = () => {
   const navigate = useNavigate()
   const { id } = useParams()
-
-  // Dummy data for demonstration
-  const dummyData = [
-    {
-      id: 1,
-      nama: 'Pekerjaan 1',
-      instansi: 'Instansi A',
-      jabatan: 'Manager',
-      tahunMulai: '2018',
-      tahunBerakhir: '2020',
-      sedangBerjalan: false,
-    },
-    {
-      id: 2,
-      nama: 'Pekerjaan 2',
-      instansi: 'Instansi B',
-      jabatan: 'Developer',
-      tahunMulai: '2016',
-      tahunBerakhir: '2018',
-      sedangBerjalan: false,
-    },
-    {
-      id: 3,
-      nama: 'Pekerjaan 3',
-      instansi: 'Instansi C',
-      jabatan: 'Analyst',
-      tahunMulai: '2015',
-      tahunBerakhir: '2016',
-      sedangBerjalan: false,
-    },
-    // Add more dummy data as needed
-  ]
+  const axiosPrivate = useAxiosPrivate()
 
   const [formData, setFormData] = useState({
-    nama: '',
-    instansi: '',
-    jabatan: '',
-    tahunMulai: '',
-    tahunBerakhir: '',
-    sedangBerjalan: false,
+    company_name: '',
+    position: '',
+    period_start: null,
+    period_end: null,
+    achievements: '',
+    is_current: false,
   })
 
   const [errors, setErrors] = useState({
-    nama: '',
-    instansi: '',
-    jabatan: '',
-    tahunMulai: '',
-    tahunBerakhir: '',
+    company_name: '',
+    position: '',
+    period_start: '',
+    period_end: '',
   })
 
-  useEffect(() => {
-    // Retrieve data based on id (assuming id is present in the dummy data)
-    const selectedData = dummyData.find((data) => data.id.toString() === id)
+  const fetchDetail = async () => {
+    try {
+      const response = await axiosPrivate.get(`/experience/jobs/${id}`)
+      const data = response.data
 
-    // If data is found, update the form data
-    if (selectedData) {
-      setFormData(selectedData)
+      setFormData({
+        company_name: data.company_name,
+        position: data.position,
+        period_start: data.period_start,
+        period_end: data.period_end,
+        achievements: data.achievements,
+        is_current: data.period_end === null,
+      })
+    } catch (error) {
+      console.error('Error fetching data:', error)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
+  }
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
+  useEffect(() => {
+    fetchDetail()
+  }, [])
+
+  const handleChange = (name, value) => {
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -77,8 +62,7 @@ const EditJobs = () => {
     }))
   }
 
-  const handleCheckboxChange = (e) => {
-    const { name, checked } = e.target
+  const handleCheckboxChange = (name, checked) => {
     setFormData((prevData) => ({
       ...prevData,
       [name]: checked,
@@ -89,41 +73,31 @@ const EditJobs = () => {
     }))
   }
 
-  const handleBack = () => {
-    navigate('/experience/job')
-  }
-
   const validateForm = () => {
     let isValid = true
     const newErrors = {}
 
-    // Validasi Nama Pekerjaan
-    if (!formData.nama.trim()) {
-      newErrors.nama = 'Nama Pekerjaan harus diisi'
-      isValid = false
-    }
-
-    // Validasi Instansi
-    if (!formData.instansi.trim()) {
-      newErrors.instansi = 'Instansi harus diisi'
+    // Validasi Nama Organisasi
+    if (!formData.company_name.trim()) {
+      newErrors.company_name = 'Nama Organisasi harus diisi'
       isValid = false
     }
 
     // Validasi Jabatan
-    if (!formData.jabatan.trim()) {
-      newErrors.jabatan = 'Jabatan harus diisi'
+    if (!formData.position.trim()) {
+      newErrors.position = 'Jabatan harus diisi'
       isValid = false
     }
 
     // Validasi Tahun Mulai
-    if (!formData.tahunMulai.trim()) {
-      newErrors.tahunMulai = 'Tahun Mulai harus diisi'
+    if (!formData.period_start) {
+      newErrors.period_start = 'Tahun Mulai harus diisi'
       isValid = false
     }
 
     // Validasi Tahun Berakhir jika tidak sedang berjalan
-    if (!formData.sedangBerjalan && !formData.tahunBerakhir.trim()) {
-      newErrors.tahunBerakhir = 'Tahun Berakhir harus diisi'
+    if (!formData.is_current && !formData.period_end) {
+      newErrors.period_end = 'Tahun Berakhir harus diisi'
       isValid = false
     }
 
@@ -131,10 +105,48 @@ const EditJobs = () => {
     return isValid
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (validateForm()) {
-      // Todo: Tambahkan logika penyimpanan data pekerjaan
-      console.log('Data yang akan disimpan:', formData)
+      try {
+        const response = await axiosPrivate.put(`/experience/jobs/${id}`, {
+          company_name: formData.company_name,
+          position: formData.position,
+          period_start: formData.period_start,
+          period_end: formData.is_current ? null : formData.period_end,
+          achievements: formData.achievements,
+        })
+
+        console.log('Data saved successfully:', response.data)
+
+        // Menampilkan Toast sukses
+        toast.success('Data saved successfully', {
+          position: 'top-right',
+          autoClose: 3000, // Waktu tampilan Toast dalam milidetik
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        })
+
+        // TODO: Handle success, misalnya, redirect ke halaman daftar pekerjaan
+        navigate('/experience/job')
+      } catch (error) {
+        console.error('Error saving data:', error)
+
+        // Menampilkan Toast kesalahan
+        toast.error('Error saving data. Please try again.', {
+          position: 'top-center',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        })
+
+        // TODO: Handle error, misalnya, menampilkan pesan kesalahan
+      }
     } else {
       console.log('Form tidak valid. Mohon isi semua field yang diperlukan.')
     }
@@ -147,129 +159,146 @@ const EditJobs = () => {
           <div className="card-header">
             <div>
               <h3 className="title">Edit Pengalaman Kerja</h3>
-              <p className="sub-title">Isi formulir untuk mengedit pengalaman kerja Anda</p>
+              <p className="sub-title">Isi formulir untuk menambah pengalaman kerja Anda</p>
             </div>
             <div className="action-container">
-              <button className="btn btn-secondary btn-back btn-sm" onClick={handleBack}>
+              <button
+                className="btn btn-secondary btn-back btn-sm"
+                onClick={() => navigate('/experience/job')}
+              >
                 <i className="fa fa-chevron-left"></i> Kembali
               </button>
             </div>
           </div>
           <div className="card-body">
-            {/* Form Edit Pekerjaan */}
+            {/* Form Tambah pekerjaan */}
             <form>
               <div className="row">
                 <div className="col-md-6">
                   <div className="form-group mb-3">
-                    <label htmlFor="namaPekerjaan" className="form-label">
-                      Nama Pekerjaan
+                    <label htmlFor="company_name" className="form-label">
+                      Nama Perusahaan
                     </label>
                     <input
                       type="text"
-                      className={`form-control ${errors.nama ? 'is-invalid' : ''}`}
-                      id="namaPekerjaan"
-                      name="nama"
-                      value={formData.nama}
-                      onChange={handleChange}
+                      className={`form-control ${errors.company_name ? 'is-invalid' : ''}`}
+                      id="company_name"
+                      name="company_name"
+                      value={formData.company_name}
+                      onChange={(e) => handleChange('company_name', e.target.value)}
                       required
                     />
-                    {errors.nama && <div className="invalid-feedback">{errors.nama}</div>}
+                    {errors.company_name && (
+                      <div className="invalid-feedback">{errors.company_name}</div>
+                    )}
                   </div>
                 </div>
                 <div className="col-md-6">
                   <div className="form-group mb-3">
-                    <label htmlFor="instansi" className="form-label">
-                      Instansi
+                    <label htmlFor="position" className="form-label">
+                      Posisi
                     </label>
                     <input
                       type="text"
-                      className={`form-control ${errors.instansi ? 'is-invalid' : ''}`}
-                      id="instansi"
-                      name="instansi"
-                      value={formData.instansi}
-                      onChange={handleChange}
+                      className={`form-control ${errors.position ? 'is-invalid' : ''}`}
+                      id="position"
+                      name="position"
+                      value={formData.position}
+                      onChange={(e) => handleChange('position', e.target.value)}
                       required
                     />
-                    {errors.instansi && <div className="invalid-feedback">{errors.instansi}</div>}
+                    {errors.position && <div className="invalid-feedback">{errors.position}</div>}
                   </div>
                 </div>
               </div>
 
               <div className="row">
-                <div className="col-md-4">
+                <div className="col-md-6">
                   <div className="form-group mb-3">
-                    <label htmlFor="jabatan" className="form-label">
-                      Jabatan
-                    </label>
-                    <input
-                      type="text"
-                      className={`form-control ${errors.jabatan ? 'is-invalid' : ''}`}
-                      id="jabatan"
-                      name="jabatan"
-                      value={formData.jabatan}
-                      onChange={handleChange}
-                      required
-                    />
-                    {errors.jabatan && <div className="invalid-feedback">{errors.jabatan}</div>}
-                  </div>
-                </div>
-
-                <div className="col-md-4">
-                  <div className="form-group mb-3">
-                    <label htmlFor="tahunMulai" className="form-label">
+                    <label htmlFor="period_start" className="form-label">
                       Tahun Mulai
                     </label>
-                    <input
-                      type="text"
-                      className={`form-control ${errors.tahunMulai ? 'is-invalid' : ''}`}
-                      id="tahunMulai"
-                      name="tahunMulai"
-                      value={formData.tahunMulai}
-                      onChange={handleChange}
+                    <DatePicker
+                      selected={formData.period_start}
+                      onChange={(date) => handleChange('period_start', date)}
+                      dateFormat="MMMM yyyy"
+                      showMonthYearPicker
+                      className={`form-control ${errors.period_start ? 'is-invalid' : ''}`}
+                      id="period_start"
+                      name="period_start"
                       required
                     />
-                    {errors.tahunMulai && (
-                      <div className="invalid-feedback">{errors.tahunMulai}</div>
+                    {errors.period_start && (
+                      <div className="invalid-feedback">{errors.period_start}</div>
                     )}
                   </div>
                 </div>
-                <div className="col-md-4">
+
+                <div className="col-md-6">
                   <div className="form-group mb-3">
-                    <label htmlFor="tahunBerakhir" className="form-label">
+                    <label htmlFor="period_end" className="form-label">
                       Tahun Berakhir
                     </label>
-                    <input
-                      type="text"
-                      className={`form-control ${errors.tahunBerakhir ? 'is-invalid' : ''}`}
-                      id="tahunBerakhir"
-                      name="tahunBerakhir"
-                      value={formData.tahunBerakhir}
-                      onChange={handleChange}
-                      disabled={formData.sedangBerjalan}
-                      required={!formData.sedangBerjalan}
+                    <DatePicker
+                      selected={formData.period_end}
+                      onChange={(date) => handleChange('period_end', date)}
+                      dateFormat="MMMM yyyy"
+                      showMonthYearPicker
+                      className={`form-control ${errors.period_end ? 'is-invalid' : ''}`}
+                      id="period_end"
+                      name="period_end"
+                      disabled={formData.is_current}
+                      required={!formData.is_current}
                     />
-                    {errors.tahunBerakhir && (
-                      <div className="invalid-feedback">{errors.tahunBerakhir}</div>
+                    {errors.period_end && (
+                      <div className="invalid-feedback">{errors.period_end}</div>
                     )}
                   </div>
                   <div className="mb-3 form-check">
                     <input
                       type="checkbox"
                       className="form-check-input"
-                      id="sedangBerjalan"
-                      name="sedangBerjalan"
-                      checked={formData.sedangBerjalan}
-                      onChange={handleCheckboxChange}
+                      id="is_current"
+                      name="is_current"
+                      checked={formData.is_current}
+                      onChange={(e) => handleCheckboxChange('is_current', e.target.checked)}
                     />
-                    <label className="form-check-label" htmlFor="sedangBerjalan">
+                    <label className="form-check-label" htmlFor="is_current">
                       Sedang Berjalan
                     </label>
                   </div>
                 </div>
               </div>
 
+              <div className="row">
+                <div className="col-md-12">
+                  <div className="form-group mb-3">
+                    <label htmlFor="achievements" className="form-label">
+                      Prestasi
+                    </label>
+                    {/* <textarea
+                      className="form-control"
+                      id="achievements"
+                      name="achievements"
+                      value={formData.achievements}
+                      onChange={(e) => handleChange('achievements', e.target.value)}
+                    /> */}
+                    <ReactQuill
+                      value={formData.achievements}
+                      onChange={(value) => handleChange('achievements', value)}
+                      modules={{
+                        toolbar: [
+                          ['bold', 'italic', 'underline'],
+                          [{ list: 'ordered' }, { list: 'bullet' }],
+                        ],
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="d-flex justify-content-end">
-                <button type="button" className="btn btn-primary " onClick={handleSave}>
+                <button type="button" className="btn btn-primary" onClick={handleSave}>
                   Simpan
                 </button>
               </div>

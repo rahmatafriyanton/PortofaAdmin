@@ -1,57 +1,72 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { format_period } from 'src/helper/AppHelper'
+import useAxiosPrivate from 'src/hooks/useAxiosPrivate'
 
-const Educations = () => {
-  const pageSize = 2
-  const [currentPage, setCurrentPage] = useState(0)
-  const [filterValue, setFilterValue] = useState('Semua')
-  const [searchValue, setSearchValue] = useState('')
-
+const Jobs = () => {
+  const page_size = process.env.REACT_APP_PAGE_SIZE
   const navigate = useNavigate()
+  const axios_private = useAxiosPrivate()
 
-  const [data, setData] = useState([
-    {
-      id: 1,
-      nama: 'Pendidikan 1',
-      instansi: 'Institusi A',
-      jurusan: 'Teknik Informatika',
-      tahun: '2018-2020',
+  const [pageData, setPageData] = useState({
+    data: null,
+    current_page: 1,
+    total_pages: 0,
+    total_data: 0,
+    filter: {
+      search_value: null,
+      is_active: '',
     },
-    {
-      id: 2,
-      nama: 'Pendidikan 2',
-      instansi: 'Institusi B',
-      jurusan: 'Sistem Informasi',
-      tahun: '2016-2018',
-    },
-    {
-      id: 3,
-      nama: 'Pendidikan 3',
-      instansi: 'Institusi C',
-      jurusan: 'Manajemen',
-      tahun: '2015-2016',
-    },
-    // Add more dummy data as needed
-  ])
+  })
+
+  const fetchData = async () => {
+    try {
+      const params = {
+        page: pageData.current_page,
+        search: pageData.filter.search_value,
+        limit: page_size,
+      }
+
+      if (pageData.filter.is_active !== '') {
+        params.is_active = pageData.filter.is_active
+      }
+
+      const response = await axios_private.get('/experience/educations', { params })
+      const responseData = response.data
+
+      const formattedData = responseData.data.map((item, index) => ({
+        ...item,
+        index: index + 1 + page_size * (pageData.current_page - 1),
+      }))
+
+      setPageData({
+        ...pageData,
+        data: formattedData,
+        total_pages: responseData.total_pages,
+        total_data: responseData.total_data,
+      })
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [pageData.current_page, pageData.filter])
 
   const handleEdit = (id) => {
-    // Handle edit logic
     console.log('Edit button clicked for id:', id)
-    navigate('/experience/education/edit/' + id)
+    navigate(`/experience/education/edit/${id}`)
   }
 
   const handleDelete = (id) => {
-    // Menampilkan notifikasi sebelum menghapus
     toast.warn(
       <div>
         <p>Apakah Anda yakin ingin menghapus pengalaman pendidikan ini?</p>
         <div className="d-flex justify-content-end">
-          <button
-            className="btn btn-outline-danger btn-sm me-2"
-            onClick={() => handleDeleteConfirmed(id)}
-          >
+          <button className="btn btn-outline-danger btn-sm me-2" onClick={() => deleteData(id)}>
             Ya
           </button>
           <button className="btn btn-secondary btn-sm" onClick={() => toast.dismiss()}>
@@ -72,51 +87,52 @@ const Educations = () => {
     )
   }
 
-  const handleDeleteConfirmed = (id) => {
-    // Handle delete logic setelah notifikasi tertutup
-    console.log('Delete button clicked for id:', id)
-
-    // TODO: Tambahkan logika penghapusan data berdasarkan ID
-    // Misalnya:
-    // const newData = data.filter(item => item.id !== id);
-    // setData(newData);
-
-    // Menutup notifikasi setelah penghapusan
+  const deleteData = async (id) => {
     toast.dismiss()
+    try {
+      await axios_private.delete(`/experience/educations/${id}`)
+
+      await fetchData()
+
+      toast.success(`Data deleted successfully`)
+    } catch (error) {
+      console.error('Error deleting data:', error)
+      toast.error('Error deleting data')
+    }
   }
 
   const handleAddExperience = () => {
-    // Navigasi ke halaman tambah pengalaman
     navigate('/experience/education/add')
   }
 
-  const totalPages = Math.ceil(data.length / pageSize)
-
   const changePage = (page) => {
-    setCurrentPage(page)
+    setPageData({ ...pageData, current_page: page })
   }
 
   const nextPage = () => {
-    if (currentPage < totalPages - 1) {
-      setCurrentPage((prevPage) => prevPage + 1)
+    if (pageData.current_page < pageData.total_pages) {
+      setPageData((prevData) => ({ ...prevData, current_page: prevData.current_page + 1 }))
     }
   }
 
   const prevPage = () => {
-    if (currentPage > 0) {
-      setCurrentPage((prevPage) => prevPage - 1)
+    if (pageData.current_page > 1) {
+      setPageData((prevData) => ({ ...prevData, current_page: prevData.current_page - 1 }))
     }
   }
 
-  const startIndex = currentPage * pageSize
-  const endIndex = startIndex + pageSize
-  const currentData = data.slice(startIndex, endIndex)
+  const toggleStatus = async (id) => {
+    try {
+      await axios_private.patch(`/experience/educations/${id}`)
 
-  const filteredData =
-    filterValue === 'Semua' ? currentData : data.filter((item) => item.instansi === filterValue)
-  const searchedData = searchValue
-    ? filteredData.filter((item) => item.nama.toLowerCase().includes(searchValue.toLowerCase()))
-    : filteredData
+      await fetchData()
+
+      toast.success(`Status updated successfully`)
+    } catch (error) {
+      console.error('Error toggling status:', error)
+      toast.error('Error updating status')
+    }
+  }
 
   return (
     <div className="row">
@@ -139,100 +155,144 @@ const Educations = () => {
                 <i className="fa fa-filter"></i>
                 <select
                   className="form-control"
-                  value={filterValue}
-                  onChange={(e) => setFilterValue(e.target.value)}
+                  value={pageData.filter.is_active}
+                  onChange={(e) =>
+                    setPageData({
+                      ...pageData,
+                      filter: { ...pageData.filter, is_active: e.target.value },
+                    })
+                  }
                 >
-                  <option value="Semua">Semua</option>
-                  {/* Add options for filters based on your data */}
+                  <option value="">Semua Data</option>
+                  <option value="Y">Aktif</option>
+                  <option value="N">Tidak Aktif</option>
                 </select>
               </div>
-
               <div className="search">
                 <i className="fa fa-search"></i>
                 <input
                   type="text"
                   className="form-control"
                   placeholder="Cari..."
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
+                  value={pageData.filter.search_value || ''}
+                  onChange={(e) =>
+                    setPageData({
+                      ...pageData,
+                      filter: { ...pageData.filter, search_value: e.target.value },
+                    })
+                  }
                 />
               </div>
             </div>
             <div className="table-responsive">
-              <table className="table table-data">
+              <table className="table table-striped table-data">
                 <thead>
                   <tr>
-                    <th>ID</th>
-                    <th>Nama Pendidikan</th>
-                    <th>Instansi</th>
-                    <th>Jurusan</th>
-                    <th>Tahun</th>
+                    <th>#</th>
+                    <th width={'25%'}>Institusi</th>
+                    <th width={'15%'}>Tingkat</th>
+                    <th width={'15%'}>Jurusan</th>
+                    <th width={'20%'}>Periode</th>
                     <th className="text-center">Aktif</th>
                     <th>Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {searchedData.map((row) => (
-                    <tr key={row.id}>
-                      <td>{row.id}</td>
-                      <td>{row.nama}</td>
-                      <td>{row.instansi}</td>
-                      <td>{row.jurusan}</td>
-                      <td>{row.tahun}</td>
-                      <td className="d-flex justify-content-center">
-                        <div className="form-check form-switch">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            role="switch"
-                            checked
-                          />
-                        </div>
-                      </td>
-                      <td>
-                        <button
-                          className="btn btn-outline-primary btn-sm me-2"
-                          onClick={() => handleEdit(row.id)}
-                        >
-                          <i className="fa fa-edit"></i>
-                        </button>
-                        <button
-                          className="btn btn-outline-danger btn-sm"
-                          onClick={() => handleDelete(row.id)}
-                        >
-                          <i className="fa fa-trash"></i>
-                        </button>
+                  {pageData.data?.length > 0 ? (
+                    pageData.data.map((row) => (
+                      <tr key={row.id}>
+                        <td>{row.index}</td>
+                        <td>{row.institution}</td>
+                        <td>{row.degree}</td>
+                        <td>{row.major}</td>
+                        <td>{format_period(row.period_start, row.period_end)}</td>
+                        <td style={{ textAlign: 'center' }}>
+                          <div
+                            className="form-check form-switch"
+                            style={{ display: 'inline-block' }}
+                          >
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              role="switch"
+                              checked={row.is_active === 'Y'}
+                              onChange={() => toggleStatus(row.id)}
+                            />
+                          </div>
+                        </td>
+                        <td>
+                          <button
+                            className="btn btn-outline-primary btn-sm me-2"
+                            onClick={() => handleEdit(row.id)}
+                          >
+                            <i className="fa fa-edit"></i>
+                          </button>
+                          <button
+                            className="btn btn-outline-danger btn-sm"
+                            onClick={() => handleDelete(row.id)}
+                          >
+                            <i className="fa fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" className="text-center">
+                        Data kosong
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
-            <nav aria-label="Page navigation example">
-              <ul className="pagination">
-                <li className={`page-item ${currentPage === 0 ? 'disabled' : ''}`}>
-                  <button className="page-link" onClick={prevPage} disabled={currentPage === 0}>
-                    <i className="fa fa-chevron-left"></i>
-                  </button>
-                </li>
-                {[...Array(totalPages).keys()].map((page) => (
-                  <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
-                    <button className="page-link" onClick={() => changePage(page)}>
-                      {page + 1}
+
+            <nav aria-label="Page navigation example"></nav>
+
+            {pageData.data?.length > 0 && pageData.total_pages > 1 && (
+              <nav aria-label="Page navigation example">
+                <ul className="pagination">
+                  <li className={`page-item ${pageData.current_page === 1 ? 'disabled' : ''}`}>
+                    <button
+                      className="page-link"
+                      onClick={prevPage}
+                      disabled={pageData.current_page === 1}
+                    >
+                      <i className="fa fa-chevron-left"></i>
                     </button>
                   </li>
-                ))}
-                <li className={`page-item ${currentPage === totalPages - 1 ? 'disabled' : ''}`}>
-                  <button
-                    className="page-link"
-                    onClick={nextPage}
-                    disabled={currentPage === totalPages - 1}
+                  {[...Array(pageData.total_pages).keys()].map((page) => (
+                    <li
+                      key={page}
+                      className={`page-item ${pageData.current_page === page + 1 ? 'active' : ''}`}
+                    >
+                      <button className="page-link" onClick={() => changePage(page + 1)}>
+                        {page + 1}
+                      </button>
+                    </li>
+                  ))}
+                  <li
+                    className={`page-item ${
+                      pageData.current_page === pageData.total_pages ? 'disabled' : ''
+                    }`}
                   >
-                    <i className="fa fa-chevron-right"></i>
-                  </button>
-                </li>
-              </ul>
-            </nav>
+                    <button
+                      className="page-link"
+                      onClick={nextPage}
+                      disabled={pageData.current_page === pageData.total_pages}
+                    >
+                      <i className="fa fa-chevron-right"></i>
+                    </button>
+                  </li>
+                </ul>
+                <div className="pagination-info">
+                  <p>
+                    Total Data: {pageData.total_data}, Total Pages: {pageData.total_pages}, Current
+                    Page: {pageData.current_page}
+                  </p>
+                </div>
+              </nav>
+            )}
           </div>
         </div>
       </div>
@@ -240,4 +300,4 @@ const Educations = () => {
   )
 }
 
-export default Educations
+export default Jobs

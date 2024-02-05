@@ -3,6 +3,15 @@ body {
   font-size: 14px;
 }
 
+.form-check-input,
+.filter {
+  cursor: pointer;
+}
+
+.react-datepicker-wrapper {
+  display: block !important;
+}
+
 input.form-control:focus,
 select.form-control:focus,
 textarea.form-control:focus,
@@ -39,7 +48,7 @@ button.btn:focus {
 }
 
 .card-data .card-header .title {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 600;
   margin-bottom: 15px;
 }
