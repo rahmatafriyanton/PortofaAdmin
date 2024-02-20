@@ -11,36 +11,44 @@ import 'react-quill/dist/quill.snow.css' // Import style untuk Quill
 const EditEducations = () => {
   const navigate = useNavigate()
   const { id } = useParams()
-  const axiosPrivate = useAxiosPrivate()
+  const axios_private = useAxiosPrivate()
 
   const [formData, setFormData] = useState({
-    institution: '',
-    degree: '',
-    major: '',
+    name: '',
+    location: '',
+    level: '',
+    description: '',
+    ipk: 0.0,
+    ipk_max: 4.0,
     period_start: null,
     period_end: null,
+    achievements: '',
     is_current: false,
   })
 
   const [errors, setErrors] = useState({
-    institution: '',
-    degree: '',
-    major: '',
+    name: '',
+    location: '',
+    level: '',
     period_start: '',
     period_end: '',
   })
 
   const fetchDetail = async () => {
     try {
-      const response = await axiosPrivate.get(`/experience/educations/${id}`)
+      const response = await axios_private.get(`/experience/educations/${id}`)
       const data = response.data
 
       setFormData({
-        institution: data.institution,
-        degree: data.degree,
-        major: data.major,
+        name: data.name,
+        location: data.location,
+        level: data.level,
+        description: data.description,
+        ipk: data.ipk,
+        ipk_max: data.ipk_max,
         period_start: data.period_start,
         period_end: data.period_end,
+        achievements: data.achievements,
         is_current: data.period_end === null,
       })
     } catch (error) {
@@ -78,13 +86,23 @@ const EditEducations = () => {
     let isValid = true
     const newErrors = {}
 
-    if (!formData.institution.trim()) {
-      newErrors.institution = 'Nama Institusi harus diisi'
+    if (!formData.name.trim()) {
+      newErrors.name = 'Nama Universitas/Sekolah harus diisi'
       isValid = false
     }
 
-    if (!formData.degree.trim()) {
-      newErrors.degree = 'Tingkat harus diisi'
+    if (!formData.location.trim()) {
+      newErrors.location = 'Lokasi Universitas/Sekolah harus diisi'
+      isValid = false
+    }
+
+    if (!formData.level.trim()) {
+      newErrors.level = 'Level pendidikan harus diisi'
+      isValid = false
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = 'Deskripsi pendidikan harus diisi'
       isValid = false
     }
 
@@ -99,19 +117,22 @@ const EditEducations = () => {
     }
 
     setErrors(newErrors)
-
     return isValid
   }
 
   const handleSave = async () => {
     if (validateForm()) {
       try {
-        const response = await axiosPrivate.put(`/experience/educations/${id}`, {
-          institution: formData.institution,
-          degree: formData.degree,
-          major: formData.major,
+        const response = await axios_private.put(`/experience/educations/${id}`, {
+          name: formData.name,
+          location: formData.location,
+          level: formData.level,
+          description: formData.description,
+          ipk: formData.ipk,
+          ipk_max: formData.ipk_max,
           period_start: formData.period_start,
           period_end: formData.is_current ? null : formData.period_end,
+          achievements: formData.achievements,
         })
 
         console.log('Data saved successfully:', response.data)
@@ -171,57 +192,110 @@ const EditEducations = () => {
           <div className="card-body">
             <form>
               <div className="row">
-                <div className="col-md-4">
+                <div className="col-md-6">
                   <div className="form-group mb-3">
-                    <label htmlFor="institution" className="form-label">
-                      Nama Institusi
+                    <label htmlFor="name" className="form-label">
+                      Nama Sekolah/Universitas
                     </label>
                     <input
                       type="text"
-                      className={`form-control ${errors.institution ? 'is-invalid' : ''}`}
-                      id="institution"
-                      name="institution"
-                      value={formData.institution}
-                      onChange={(e) => handleChange('institution', e.target.value)}
+                      className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={(e) => handleChange('name', e.target.value)}
                       required
                     />
-                    {errors.institution && (
-                      <div className="invalid-feedback">{errors.institution}</div>
-                    )}
+                    {errors.name && <div className="invalid-feedback">{errors.name}</div>}
                   </div>
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-6">
                   <div className="form-group mb-3">
-                    <label htmlFor="degree" className="form-label">
-                      Tingkat
+                    <label htmlFor="location" className="form-label">
+                      Lokasi Sekolah/Universitas
                     </label>
                     <input
                       type="text"
-                      className={`form-control ${errors.degree ? 'is-invalid' : ''}`}
-                      id="degree"
-                      name="degree"
-                      value={formData.degree}
-                      onChange={(e) => handleChange('degree', e.target.value)}
+                      className={`form-control ${errors.location ? 'is-invalid' : ''}`}
+                      id="location"
+                      name="location"
+                      value={formData.location}
+                      onChange={(e) => handleChange('location', e.target.value)}
                       required
                     />
-                    {errors.degree && <div className="invalid-feedback">{errors.degree}</div>}
+                    {errors.location && <div className="invalid-feedback">{errors.location}</div>}
                   </div>
                 </div>
 
-                <div className="col-md-4">
+                <div className="col-md-6">
                   <div className="form-group mb-3">
-                    <label htmlFor="major" className="form-label">
-                      Jurusan
+                    <label htmlFor="level" className="form-label">
+                      Level Pendidikan
                     </label>
                     <input
                       type="text"
-                      className={`form-control ${errors.major ? 'is-invalid' : ''}`}
-                      id="major"
-                      name="major"
-                      value={formData.major}
-                      onChange={(e) => handleChange('major', e.target.value)}
+                      className={`form-control ${errors.level ? 'is-invalid' : ''}`}
+                      id="level"
+                      name="level"
+                      value={formData.level}
+                      onChange={(e) => handleChange('level', e.target.value)}
                     />
-                    {errors.major && <div className="invalid-feedback">{errors.major}</div>}
+                    {errors.level && <div className="invalid-feedback">{errors.level}</div>}
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <div className="form-group mb-3">
+                    <label htmlFor="description" className="form-label">
+                      Deskripsi
+                    </label>
+                    <input
+                      type="text"
+                      className={`form-control ${errors.description ? 'is-invalid' : ''}`}
+                      id="description"
+                      name="description"
+                      value={formData.description}
+                      onChange={(e) => handleChange('description', e.target.value)}
+                    />
+                    {errors.description && (
+                      <div className="invalid-feedback">{errors.description}</div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <div className="form-group mb-3">
+                    <label htmlFor="ipk" className="form-label">
+                      IPK
+                    </label>
+                    <input
+                      type="number"
+                      className={`form-control ${errors.ipk ? 'is-invalid' : ''}`}
+                      id="ipk"
+                      name="ipk"
+                      step="0.01"
+                      value={formData.ipk}
+                      onChange={(e) => handleChange('ipk', e.target.value)}
+                    />
+                    {errors.ipk && <div className="invalid-feedback">{errors.ipk}</div>}
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <div className="form-group mb-3">
+                    <label htmlFor="ipk_max" className="form-label">
+                      IPK Max
+                    </label>
+                    <input
+                      type="number"
+                      className={`form-control ${errors.ipk_max ? 'is-invalid' : ''}`}
+                      step="0.01"
+                      id="ipk_max"
+                      name="ipk_max"
+                      value={formData.ipk_max}
+                      onChange={(e) => handleChange('ipk_max', e.target.value)}
+                    />
+                    {errors.ipk_max && <div className="invalid-feedback">{errors.ipk_max}</div>}
                   </div>
                 </div>
               </div>
@@ -280,6 +354,22 @@ const EditEducations = () => {
                     <label className="form-check-label" htmlFor="is_current">
                       Sedang Berjalan
                     </label>
+                  </div>
+                </div>
+
+                <div className="col-md-12">
+                  <div className="form-group mb-3">
+                    <label htmlFor="achievements" className="form-label">
+                      Aktifitas dan Pencapaian
+                    </label>
+
+                    <ReactQuill
+                      value={formData.achievements}
+                      onChange={(value) => handleChange('achievements', value)}
+                      modules={{
+                        toolbar: [[{ list: 'bullet' }]],
+                      }}
+                    />
                   </div>
                 </div>
               </div>

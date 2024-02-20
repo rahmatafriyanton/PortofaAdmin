@@ -11,11 +11,13 @@ import 'react-quill/dist/quill.snow.css' // Import style untuk Quill
 const EditJobs = () => {
   const navigate = useNavigate()
   const { id } = useParams()
-  const axiosPrivate = useAxiosPrivate()
+  const axios_private = useAxiosPrivate()
 
   const [formData, setFormData] = useState({
     company_name: '',
     position: '',
+    location: '',
+    description: '',
     period_start: null,
     period_end: null,
     achievements: '',
@@ -25,22 +27,25 @@ const EditJobs = () => {
   const [errors, setErrors] = useState({
     company_name: '',
     position: '',
+    location: '',
     period_start: '',
     period_end: '',
   })
 
   const fetchDetail = async () => {
     try {
-      const response = await axiosPrivate.get(`/experience/jobs/${id}`)
+      const response = await axios_private.get(`/experience/jobs/${id}`)
       const data = response.data
 
       setFormData({
         company_name: data.company_name,
         position: data.position,
+        location: data.location,
+        description: data.description,
         period_start: data.period_start,
         period_end: data.period_end,
-        achievements: data.achievements,
         is_current: data.period_end === null,
+        achievements: data.achievements,
       })
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -89,6 +94,11 @@ const EditJobs = () => {
       isValid = false
     }
 
+    if (!formData.location.trim()) {
+      newErrors.location = 'Lokasi harus diisi'
+      isValid = false
+    }
+
     // Validasi Tahun Mulai
     if (!formData.period_start) {
       newErrors.period_start = 'Tahun Mulai harus diisi'
@@ -108,15 +118,15 @@ const EditJobs = () => {
   const handleSave = async () => {
     if (validateForm()) {
       try {
-        const response = await axiosPrivate.put(`/experience/jobs/${id}`, {
+        await axios_private.put(`/experience/jobs/${id}`, {
           company_name: formData.company_name,
           position: formData.position,
+          location: formData.location,
+          description: formData.description,
           period_start: formData.period_start,
           period_end: formData.is_current ? null : formData.period_end,
           achievements: formData.achievements,
         })
-
-        console.log('Data saved successfully:', response.data)
 
         // Menampilkan Toast sukses
         toast.success('Data saved successfully', {
@@ -196,7 +206,7 @@ const EditJobs = () => {
                 <div className="col-md-6">
                   <div className="form-group mb-3">
                     <label htmlFor="position" className="form-label">
-                      Posisi
+                      Jabatan/Magang/Posisi
                     </label>
                     <input
                       type="text"
@@ -208,6 +218,40 @@ const EditJobs = () => {
                       required
                     />
                     {errors.position && <div className="invalid-feedback">{errors.position}</div>}
+                  </div>
+                </div>
+
+                <div className="col-md-12">
+                  <div className="form-group mb-3">
+                    <label htmlFor="position" className="form-label">
+                      Lokasi Perusahaan (Kota, Negara)
+                    </label>
+                    <input
+                      type="text"
+                      className={`form-control ${errors.location ? 'is-invalid' : ''}`}
+                      id="location"
+                      name="location"
+                      value={formData.location}
+                      onChange={(e) => handleChange('location', e.target.value)}
+                      required
+                    />
+                    {errors.location && <div className="invalid-feedback">{errors.location}</div>}
+                  </div>
+                </div>
+
+                <div className="col-md-12">
+                  <div className="form-group mb-3">
+                    <label htmlFor="position" className="form-label">
+                      Deskripsi Perusahaan (Opsional) ​
+                    </label>
+                    <textarea
+                      type="text"
+                      className={`form-control ${errors.description ? 'is-invalid' : ''}`}
+                      id="description"
+                      name="description"
+                      value={formData.description}
+                      onChange={(e) => handleChange('description', e.target.value)}
+                    ></textarea>
                   </div>
                 </div>
               </div>
@@ -235,7 +279,7 @@ const EditJobs = () => {
                 </div>
 
                 <div className="col-md-6">
-                  <div className="form-group mb-3">
+                  <div className="form-group mb-2">
                     <label htmlFor="period_end" className="form-label">
                       Tahun Berakhir
                     </label>
@@ -276,21 +320,12 @@ const EditJobs = () => {
                     <label htmlFor="achievements" className="form-label">
                       Prestasi
                     </label>
-                    {/* <textarea
-                      className="form-control"
-                      id="achievements"
-                      name="achievements"
-                      value={formData.achievements}
-                      onChange={(e) => handleChange('achievements', e.target.value)}
-                    /> */}
+
                     <ReactQuill
                       value={formData.achievements}
                       onChange={(value) => handleChange('achievements', value)}
                       modules={{
-                        toolbar: [
-                          ['bold', 'italic', 'underline'],
-                          [{ list: 'ordered' }, { list: 'bullet' }],
-                        ],
+                        toolbar: [[{ list: 'bullet' }]],
                       }}
                     />
                   </div>

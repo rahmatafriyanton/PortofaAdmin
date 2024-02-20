@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import { format_period } from 'src/helper/AppHelper'
 import useAxiosPrivate from 'src/hooks/useAxiosPrivate'
 
-const Jobs = () => {
+const Skills = () => {
   const page_size = process.env.REACT_APP_PAGE_SIZE
   const navigate = useNavigate()
   const axios_private = useAxiosPrivate()
@@ -33,7 +33,7 @@ const Jobs = () => {
         params.is_active = pageData.filter.is_active
       }
 
-      const response = await axios_private.get('/experience/educations', { params })
+      const response = await axios_private.get('/certifications', { params })
       const responseData = response.data
 
       const formattedData = responseData.data.map((item, index) => ({
@@ -58,13 +58,13 @@ const Jobs = () => {
 
   const handleEdit = (id) => {
     console.log('Edit button clicked for id:', id)
-    navigate(`/experience/education/edit/${id}`)
+    navigate(`/certifications/edit/${id}`)
   }
 
   const handleDelete = (id) => {
     toast.warn(
       <div>
-        <p>Apakah Anda yakin ingin menghapus pengalaman pendidikan ini?</p>
+        <p>Apakah Anda yakin ingin menghapus sertifikasi ini?</p>
         <div className="d-flex justify-content-end">
           <button className="btn btn-outline-danger btn-sm me-2" onClick={() => deleteData(id)}>
             Ya
@@ -90,7 +90,7 @@ const Jobs = () => {
   const deleteData = async (id) => {
     toast.dismiss()
     try {
-      await axios_private.delete(`/experience/educations/${id}`)
+      await axios_private.delete(`/certifications/${id}`)
 
       await fetchData()
 
@@ -102,7 +102,7 @@ const Jobs = () => {
   }
 
   const handleAddExperience = () => {
-    navigate('/experience/education/add')
+    navigate('/certifications/add')
   }
 
   const changePage = (page) => {
@@ -123,7 +123,7 @@ const Jobs = () => {
 
   const toggleStatus = async (id) => {
     try {
-      await axios_private.patch(`/experience/educations/${id}`)
+      await axios_private.patch(`/certifications/${id}`)
 
       await fetchData()
 
@@ -140,12 +140,12 @@ const Jobs = () => {
         <div className="card card-data mb-4">
           <div className="card-header">
             <div>
-              <h3 className="title">Pendidikan</h3>
-              <p className="sub-title">Daftar pengalaman pendidikan Anda</p>
+              <h3 className="title">Sertifikasi</h3>
+              <p className="sub-title">Daftar Sertifikasi Anda</p>
             </div>
             <div className="action-container">
               <button className="btn btn-primary btn-sm" onClick={handleAddExperience}>
-                Tambah Pengalaman
+                Tambah
               </button>
             </div>
           </div>
@@ -190,9 +190,11 @@ const Jobs = () => {
                   <tr>
                     <th>#</th>
                     <th width={'25%'}>Nama</th>
-                    <th width={'15%'}>Tingkat</th>
-                    <th width={'10%'}>IPK</th>
-                    <th width={'20%'}>Periode</th>
+                    <th width={'20%'}>Instansi</th>
+                    <th className="text-center" width={'10%'}>
+                      Tahun
+                    </th>
+                    <th width={'15%'}>File</th>
                     <th className="text-center">Aktif</th>
                     <th>Aksi</th>
                   </tr>
@@ -203,13 +205,9 @@ const Jobs = () => {
                       <tr key={row.id}>
                         <td>{row.index}</td>
                         <td>{row.name}</td>
-                        <td>
-                          {row.level} - {row.description}
-                        </td>
-                        <td>
-                          {row.ipk} / {row.ipk_max}
-                        </td>
-                        <td>{format_period(row.period_start, row.period_end)}</td>
+                        <td>{row.issuing_authority}</td>
+                        <td className="text-center">{row.year_obtained}</td>
+                        <td>{row.link}</td>
                         <td style={{ textAlign: 'center' }}>
                           <div
                             className="form-check form-switch"
@@ -242,7 +240,7 @@ const Jobs = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="7" className="text-center">
+                      <td colSpan="6" className="text-center">
                         Data kosong
                       </td>
                     </tr>
@@ -304,4 +302,4 @@ const Jobs = () => {
   )
 }
 
-export default Jobs
+export default Skills

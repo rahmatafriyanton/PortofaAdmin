@@ -90,6 +90,114 @@ const organizations_routes = [
 ]
 // End Pengalaman Organisasi
 
+// Keterampilan
+const Skill = React.lazy(() => import('./views/skill/index.js'))
+const AddSkill = React.lazy(() => import('./views/skill/add.js'))
+const EditSkill = React.lazy(() => import('./views/skill/edit.js'))
+
+const skill_routes = [
+  {
+    path: '/skills',
+    name: 'Keterampilan',
+    element: Skill,
+    exact: true,
+  },
+
+  {
+    path: '/skills/add',
+    name: 'Tambah Keterampilan',
+    element: AddSkill,
+    exact: true,
+  },
+
+  {
+    path: '/skills/edit/:id',
+    name: 'Edit Keterampilan',
+    element: EditSkill,
+    exact: true,
+  },
+]
+// End Keterampilan
+
+// Sertifikasi
+const Certification = React.lazy(() => import('./views/certification/index.js'))
+const AddCertification = React.lazy(() => import('./views/certification/add.js'))
+const EditCertification = React.lazy(() => import('./views/certification/edit.js'))
+
+const certification_routes = [
+  {
+    path: '/certifications',
+    name: 'Sertifikasi',
+    element: Certification,
+    exact: true,
+  },
+
+  {
+    path: '/certifications/add',
+    name: 'Tambah Sertifikasi',
+    element: AddCertification,
+    exact: true,
+  },
+
+  {
+    path: '/certifications/edit/:id',
+    name: 'Edit Sertifikasi',
+    element: EditCertification,
+    exact: true,
+  },
+]
+// End Sertifikasi
+
+// Sertifikasi
+const Project = React.lazy(() => import('./views/project/index.js'))
+const AddProject = React.lazy(() => import('./views/project/add.js'))
+const EditProject = React.lazy(() => import('./views/project/edit.js'))
+
+const project_routes = [
+  {
+    path: '/projects',
+    name: 'Sertifikasi',
+    element: Project,
+    exact: true,
+  },
+
+  {
+    path: '/projects/add',
+    name: 'Tambah Sertifikasi',
+    element: AddProject,
+    exact: true,
+  },
+
+  {
+    path: '/projects/edit/:id',
+    name: 'Edit Sertifikasi',
+    element: EditProject,
+    exact: true,
+  },
+]
+// End Sertifikasi
+
+// User
+const User = React.lazy(() => import('./views/user/index.js'))
+const EditUser = React.lazy(() => import('./views/user/edit.js'))
+
+const user_routes = [
+  {
+    path: '/users',
+    name: 'User',
+    element: User,
+    exact: true,
+  },
+
+  {
+    path: '/users/edit',
+    name: 'Edit User',
+    element: EditUser,
+    exact: true,
+  },
+]
+// End User
+
 const routes = [
   { path: '/', exact: true, name: 'Beranda' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
@@ -97,8 +205,10 @@ const routes = [
   ...jobs_routes,
   ...education_routes,
   ...organizations_routes,
-
-  { path: '/skills', name: 'Keterampilan', element: Dashboard, exact: true },
+  ...skill_routes,
+  ...certification_routes,
+  ...project_routes,
+  ...user_routes,
   { path: '/certifications', name: 'Sertifikasi', element: Dashboard, exact: true },
   { path: '/projects', name: 'Proyek', element: Dashboard, exact: true },
   { path: '/resume', name: 'Resume', element: Dashboard, exact: true },

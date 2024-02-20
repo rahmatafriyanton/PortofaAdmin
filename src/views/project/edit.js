@@ -1,24 +1,23 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import useAxiosPrivate from 'src/hooks/useAxiosPrivate'
-import ReactQuill from 'react-quill'
-import 'react-quill/dist/quill.snow.css'
+import ReactQuill from 'react-quill' // Import library ReactQuill
+import 'react-quill/dist/quill.snow.css' // Import style untuk Quill
 
-const AddEducations = () => {
+const EditJobs = () => {
   const navigate = useNavigate()
+  const { id } = useParams()
   const axios_private = useAxiosPrivate()
 
   const [formData, setFormData] = useState({
     name: '',
+    position: '',
     location: '',
-    level: '',
     description: '',
-    ipk: 0.0,
-    ipk_max: 4.0,
     period_start: null,
     period_end: null,
     achievements: '',
@@ -27,11 +26,35 @@ const AddEducations = () => {
 
   const [errors, setErrors] = useState({
     name: '',
+    position: '',
     location: '',
-    level: '',
     period_start: '',
     period_end: '',
   })
+
+  const fetchDetail = async () => {
+    try {
+      const response = await axios_private.get(`/projects/${id}`)
+      const data = response.data
+
+      setFormData({
+        name: data.name,
+        position: data.position,
+        location: data.location,
+        description: data.description,
+        period_start: data.period_start,
+        period_end: data.period_end,
+        is_current: data.period_end === null,
+        achievements: data.achievements,
+      })
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchDetail()
+  }, [])
 
   const handleChange = (name, value) => {
     setFormData((prevData) => ({
@@ -40,7 +63,7 @@ const AddEducations = () => {
     }))
     setErrors((prevErrors) => ({
       ...prevErrors,
-      [name]: '',
+      [name]: '', // Menghapus pesan kesalahan saat nilai field diubah
     }))
   }
 
@@ -51,7 +74,7 @@ const AddEducations = () => {
     }))
     setErrors((prevErrors) => ({
       ...prevErrors,
-      [name]: '',
+      [name]: '', // Menghapus pesan kesalahan saat nilai field diubah
     }))
   }
 
@@ -59,31 +82,30 @@ const AddEducations = () => {
     let isValid = true
     const newErrors = {}
 
+    // Validasi Nama Organisasi
     if (!formData.name.trim()) {
-      newErrors.name = 'Nama Universitas/Sekolah harus diisi'
+      newErrors.name = 'Nama Organisasi harus diisi'
+      isValid = false
+    }
+
+    // Validasi Jabatan
+    if (!formData.position.trim()) {
+      newErrors.position = 'Jabatan harus diisi'
       isValid = false
     }
 
     if (!formData.location.trim()) {
-      newErrors.location = 'Lokasi Universitas/Sekolah harus diisi'
+      newErrors.location = 'Lokasi harus diisi'
       isValid = false
     }
 
-    if (!formData.level.trim()) {
-      newErrors.level = 'Level pendidikan harus diisi'
-      isValid = false
-    }
-
-    if (!formData.description.trim()) {
-      newErrors.description = 'Deskripsi pendidikan harus diisi'
-      isValid = false
-    }
-
+    // Validasi Tahun Mulai
     if (!formData.period_start) {
       newErrors.period_start = 'Tahun Mulai harus diisi'
       isValid = false
     }
 
+    // Validasi Tahun Berakhir jika tidak sedang berjalan
     if (!formData.is_current && !formData.period_end) {
       newErrors.period_end = 'Tahun Berakhir harus diisi'
       isValid = false
@@ -96,23 +118,20 @@ const AddEducations = () => {
   const handleSave = async () => {
     if (validateForm()) {
       try {
-        const response = await axios_private.post('/experience/educations', {
+        await axios_private.put(`/projects/${id}`, {
           name: formData.name,
+          position: formData.position,
           location: formData.location,
-          level: formData.level,
           description: formData.description,
-          ipk: formData.ipk,
-          ipk_max: formData.ipk_max,
           period_start: formData.period_start,
           period_end: formData.is_current ? null : formData.period_end,
           achievements: formData.achievements,
         })
 
-        console.log('Data saved successfully:', response.data)
-
+        // Menampilkan Toast sukses
         toast.success('Data saved successfully', {
           position: 'top-right',
-          autoClose: 3000,
+          autoClose: 3000, // Waktu tampilan Toast dalam milidetik
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
@@ -120,9 +139,12 @@ const AddEducations = () => {
           progress: undefined,
         })
 
-        navigate('/experience/education')
+        // TODO: Handle success, misalnya, redirect ke halaman daftar pekerjaan
+        navigate('/projects')
       } catch (error) {
         console.error('Error saving data:', error)
+
+        // Menampilkan Toast kesalahan
         toast.error('Error saving data. Please try again.', {
           position: 'top-center',
           autoClose: 3000,
@@ -132,6 +154,8 @@ const AddEducations = () => {
           draggable: true,
           progress: undefined,
         })
+
+        // TODO: Handle error, misalnya, menampilkan pesan kesalahan
       }
     } else {
       console.log('Form tidak valid. Mohon isi semua field yang diperlukan.')
@@ -144,25 +168,26 @@ const AddEducations = () => {
         <div className="card card-data mb-4">
           <div className="card-header">
             <div>
-              <h3 className="title">Tambah Pengalaman Pendidikan</h3>
-              <p className="sub-title">Isi formulir untuk menambah pengalaman pendidikan Anda</p>
+              <h3 className="title">Edit Proyek</h3>
+              <p className="sub-title">Isi formulir untuk menambah proyek Anda</p>
             </div>
             <div className="action-container">
               <button
                 className="btn btn-secondary btn-back btn-sm"
-                onClick={() => navigate('/experience/education')}
+                onClick={() => navigate('/projects')}
               >
                 <i className="fa fa-chevron-left"></i> Kembali
               </button>
             </div>
           </div>
           <div className="card-body">
+            {/* Form Tambah pekerjaan */}
             <form>
               <div className="row">
                 <div className="col-md-6">
                   <div className="form-group mb-3">
                     <label htmlFor="name" className="form-label">
-                      Nama Sekolah/Universitas
+                      Nama Proyek
                     </label>
                     <input
                       type="text"
@@ -178,8 +203,26 @@ const AddEducations = () => {
                 </div>
                 <div className="col-md-6">
                   <div className="form-group mb-3">
-                    <label htmlFor="location" className="form-label">
-                      Lokasi Sekolah/Universitas
+                    <label htmlFor="position" className="form-label">
+                      Jabatan/Magang/Posisi
+                    </label>
+                    <input
+                      type="text"
+                      className={`form-control ${errors.position ? 'is-invalid' : ''}`}
+                      id="position"
+                      name="position"
+                      value={formData.position}
+                      onChange={(e) => handleChange('position', e.target.value)}
+                      required
+                    />
+                    {errors.position && <div className="invalid-feedback">{errors.position}</div>}
+                  </div>
+                </div>
+
+                <div className="col-md-12">
+                  <div className="form-group mb-3">
+                    <label htmlFor="position" className="form-label">
+                      Lokasi Proyek (Kota, Negara)
                     </label>
                     <input
                       type="text"
@@ -194,75 +237,19 @@ const AddEducations = () => {
                   </div>
                 </div>
 
-                <div className="col-md-6">
+                <div className="col-md-12">
                   <div className="form-group mb-3">
-                    <label htmlFor="level" className="form-label">
-                      Level Pendidikan
+                    <label htmlFor="position" className="form-label">
+                      Deskripsi Proyek (Opsional) ​
                     </label>
-                    <input
-                      type="text"
-                      className={`form-control ${errors.level ? 'is-invalid' : ''}`}
-                      id="level"
-                      name="level"
-                      value={formData.level}
-                      onChange={(e) => handleChange('level', e.target.value)}
-                    />
-                    {errors.level && <div className="invalid-feedback">{errors.level}</div>}
-                  </div>
-                </div>
-
-                <div className="col-md-6">
-                  <div className="form-group mb-3">
-                    <label htmlFor="description" className="form-label">
-                      Deskripsi
-                    </label>
-                    <input
+                    <textarea
                       type="text"
                       className={`form-control ${errors.description ? 'is-invalid' : ''}`}
                       id="description"
                       name="description"
                       value={formData.description}
                       onChange={(e) => handleChange('description', e.target.value)}
-                    />
-                    {errors.description && (
-                      <div className="invalid-feedback">{errors.description}</div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="col-md-6">
-                  <div className="form-group mb-3">
-                    <label htmlFor="ipk" className="form-label">
-                      IPK
-                    </label>
-                    <input
-                      type="number"
-                      className={`form-control ${errors.ipk ? 'is-invalid' : ''}`}
-                      id="ipk"
-                      name="ipk"
-                      step="0.01"
-                      value={formData.ipk}
-                      onChange={(e) => handleChange('ipk', e.target.value)}
-                    />
-                    {errors.ipk && <div className="invalid-feedback">{errors.ipk}</div>}
-                  </div>
-                </div>
-
-                <div className="col-md-6">
-                  <div className="form-group mb-3">
-                    <label htmlFor="ipk_max" className="form-label">
-                      IPK Max
-                    </label>
-                    <input
-                      type="number"
-                      className={`form-control ${errors.ipk_max ? 'is-invalid' : ''}`}
-                      step="0.01"
-                      id="ipk_max"
-                      name="ipk_max"
-                      value={formData.ipk_max}
-                      onChange={(e) => handleChange('ipk_max', e.target.value)}
-                    />
-                    {errors.ipk_max && <div className="invalid-feedback">{errors.ipk_max}</div>}
+                    ></textarea>
                   </div>
                 </div>
               </div>
@@ -290,7 +277,7 @@ const AddEducations = () => {
                 </div>
 
                 <div className="col-md-6">
-                  <div className="form-group mb-3">
+                  <div className="form-group mb-2">
                     <label htmlFor="period_end" className="form-label">
                       Tahun Berakhir
                     </label>
@@ -323,11 +310,13 @@ const AddEducations = () => {
                     </label>
                   </div>
                 </div>
+              </div>
 
+              <div className="row">
                 <div className="col-md-12">
                   <div className="form-group mb-3">
                     <label htmlFor="achievements" className="form-label">
-                      Aktifitas dan Pencapaian
+                      Prestasi
                     </label>
 
                     <ReactQuill
@@ -354,4 +343,4 @@ const AddEducations = () => {
   )
 }
 
-export default AddEducations
+export default EditJobs

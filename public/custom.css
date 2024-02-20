@@ -147,13 +147,16 @@ button.btn:focus {
 
 /* Form */
 .form-group .form-label {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
 }
 
-.form-group .form-control,
-.form-check .form-check-label {
+.form-group .form-control {
   font-size: 14px;
+}
+
+.form-check .form-check-label {
+  font-size: 12px;
 }
 
 .form-group .invalid-feedback,

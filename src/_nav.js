@@ -9,6 +9,7 @@ import {
   cilPuzzle,
   cilSpeedometer,
   cilStar,
+  cilUser,
 } from '@coreui/icons'
 import { CNavItem, CNavTitle } from '@coreui/react'
 
@@ -52,21 +53,28 @@ const _nav = [
   {
     component: CNavItem,
     name: 'Keterampilan',
-    to: '/skill',
+    to: '/skills',
     icon: <CIcon icon={cilChartPie} customClassName="nav-icon" />,
   },
   {
     component: CNavItem,
     name: 'Sertifikasi',
-    to: '/certification',
+    to: '/certifications',
     icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
   },
   {
     component: CNavItem,
     name: 'Proyek',
-    to: '/project',
+    to: '/projects',
     icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
   },
+  {
+    component: CNavItem,
+    name: 'Informasi Personal',
+    to: '/users/edit',
+    icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+  },
+
   {
     component: CNavItem,
     name: 'Resume',

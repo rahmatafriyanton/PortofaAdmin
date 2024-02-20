@@ -15,6 +15,8 @@ const AddOrganizations = () => {
   const [formData, setFormData] = useState({
     name: '',
     position: '',
+    location: '',
+    description: '',
     period_start: null,
     period_end: null,
     achievements: '',
@@ -24,6 +26,7 @@ const AddOrganizations = () => {
   const [errors, setErrors] = useState({
     name: '',
     position: '',
+    location: '',
     period_start: '',
     period_end: '',
   })
@@ -66,6 +69,11 @@ const AddOrganizations = () => {
       isValid = false
     }
 
+    if (!formData.location.trim()) {
+      newErrors.location = 'Lokasi harus diisi'
+      isValid = false
+    }
+
     // Validasi Tahun Mulai
     if (!formData.period_start) {
       newErrors.period_start = 'Tahun Mulai harus diisi'
@@ -88,6 +96,8 @@ const AddOrganizations = () => {
         const response = await axios_private.post('/experience/organizations', {
           name: formData.name,
           position: formData.position,
+          location: formData.location,
+          description: formData.description,
           period_start: formData.period_start,
           period_end: formData.is_current ? null : formData.period_end,
           achievements: formData.achievements,
@@ -128,13 +138,6 @@ const AddOrganizations = () => {
     }
   }
 
-  const modules = {
-    toolbar: [
-      ['bold', 'italic', 'underline'],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-    ],
-  }
-
   return (
     <div className="row">
       <div className="col-xs-12">
@@ -160,7 +163,7 @@ const AddOrganizations = () => {
                 <div className="col-md-6">
                   <div className="form-group mb-3">
                     <label htmlFor="name" className="form-label">
-                      Nama Organisasi
+                      Organisasi/Nama Acara
                     </label>
                     <input
                       type="text"
@@ -177,7 +180,7 @@ const AddOrganizations = () => {
                 <div className="col-md-6">
                   <div className="form-group mb-3">
                     <label htmlFor="position" className="form-label">
-                      Jabatan
+                      Posisi/Gelar Jabatan
                     </label>
                     <input
                       type="text"
@@ -189,6 +192,40 @@ const AddOrganizations = () => {
                       required
                     />
                     {errors.position && <div className="invalid-feedback">{errors.position}</div>}
+                  </div>
+                </div>
+
+                <div className="col-md-12">
+                  <div className="form-group mb-3">
+                    <label htmlFor="position" className="form-label">
+                      Aktivitas/Acara/Lokasi Organisasi (Kota/Negara)
+                    </label>
+                    <input
+                      type="text"
+                      className={`form-control ${errors.location ? 'is-invalid' : ''}`}
+                      id="location"
+                      name="location"
+                      value={formData.location}
+                      onChange={(e) => handleChange('location', e.target.value)}
+                      required
+                    />
+                    {errors.location && <div className="invalid-feedback">{errors.location}</div>}
+                  </div>
+                </div>
+
+                <div className="col-md-12">
+                  <div className="form-group mb-3">
+                    <label htmlFor="position" className="form-label">
+                      Deskripsi Organisasi (opsional)
+                    </label>
+                    <textarea
+                      type="text"
+                      className={`form-control ${errors.description ? 'is-invalid' : ''}`}
+                      id="description"
+                      name="description"
+                      value={formData.description}
+                      onChange={(e) => handleChange('description', e.target.value)}
+                    ></textarea>
                   </div>
                 </div>
               </div>
@@ -216,7 +253,7 @@ const AddOrganizations = () => {
                 </div>
 
                 <div className="col-md-6">
-                  <div className="form-group mb-3">
+                  <div className="form-group mb-2">
                     <label htmlFor="period_end" className="form-label">
                       Tahun Berakhir
                     </label>
@@ -245,7 +282,7 @@ const AddOrganizations = () => {
                       onChange={(e) => handleCheckboxChange('is_current', e.target.checked)}
                     />
                     <label className="form-check-label" htmlFor="is_current">
-                      Sedang Berjalan
+                      Saat ini saya aktif di sini
                     </label>
                   </div>
                 </div>
@@ -255,19 +292,15 @@ const AddOrganizations = () => {
                 <div className="col-md-12">
                   <div className="form-group mb-3">
                     <label htmlFor="achievements" className="form-label">
-                      Prestasi
+                      Deskripsi Pekerjaan
                     </label>
-                    {/* <textarea
-                      className="form-control"
-                      id="achievements"
-                      name="achievements"
-                      value={formData.achievements}
-                      onChange={(e) => handleChange('achievements', e.target.value)}
-                    /> */}
+
                     <ReactQuill
                       value={formData.achievements}
                       onChange={(value) => handleChange('achievements', value)}
-                      modules={modules}
+                      modules={{
+                        toolbar: [[{ list: 'bullet' }]],
+                      }}
                     />
                   </div>
                 </div>

@@ -40,8 +40,9 @@ const Login = () => {
         dispatch({
           type: 'set_user',
           user: {
+            id: response.data.id,
             email: response.data.email,
-            name: response.data.name,
+            username: response.data.username,
             token: response.data.token,
           },
         })
