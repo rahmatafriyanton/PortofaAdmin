@@ -103,9 +103,6 @@ const AddOrganizations = () => {
           achievements: formData.achievements,
         })
 
-        console.log('Data saved successfully:', response.data)
-
-        // Menampilkan Toast sukses
         toast.success('Data saved successfully', {
           position: 'top-right',
           autoClose: 3000, // Waktu tampilan Toast dalam milidetik
@@ -116,11 +113,9 @@ const AddOrganizations = () => {
           progress: undefined,
         })
 
-        // TODO: Handle success, misalnya, redirect ke halaman daftar pekerjaan
         navigate('/experience/organization')
       } catch (error) {
         console.error('Error saving data:', error)
-        // Menampilkan Toast kesalahan
         toast.error('Error saving data. Please try again.', {
           position: 'top-center',
           autoClose: 3000,
@@ -130,8 +125,6 @@ const AddOrganizations = () => {
           draggable: true,
           progress: undefined,
         })
-
-        // TODO: Handle error, misalnya, menampilkan pesan kesalahan
       }
     } else {
       console.log('Form tidak valid. Mohon isi semua field yang diperlukan.')

@@ -34,8 +34,6 @@ const Login = () => {
         })
 
         console.log('Login successful:', response.data)
-
-        // Handle response as needed
         // Dispatch action to set user in Redux state
         dispatch({
           type: 'set_user',
@@ -51,10 +49,14 @@ const Login = () => {
         setFormData({ username: '', password: '' })
 
         navigate('/dashboard')
+
+
       } catch (error) {
         console.error('Login failed', error)
-        // Handle error as needed
+        alert('Login failed', error)
       }
+
+      
     }
   }
 

@@ -1,7 +1,6 @@
 import React from 'react'
 import {
   CAvatar,
-  CBadge,
   CDropdown,
   CDropdownDivider,
   CDropdownHeader,
@@ -9,22 +8,10 @@ import {
   CDropdownMenu,
   CDropdownToggle,
 } from '@coreui/react'
-import {
-  cilBell,
-  cilCreditCard,
-  cilCommentSquare,
-  cilEnvelopeOpen,
-  cilFile,
-  cilLockLocked,
-  cilSettings,
-  cilTask,
-  cilUser,
-  cilArrowLeft,
-  cilArrowThickToLeft,
-} from '@coreui/icons'
+import { cilSettings, cilUser, cilArrowThickToLeft } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
-import avatar8 from './../../assets/images/avatars/8.jpg'
+import avatar8 from './../../assets/images/avatars/3.jpg'
 
 const AppHeaderDropdown = () => {
   return (
@@ -34,17 +21,17 @@ const AppHeaderDropdown = () => {
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <CDropdownHeader className="bg-light fw-semibold py-2">Settings</CDropdownHeader>
-        <CDropdownItem href="#">
+        <CDropdownItem href="/users/edit">
           <CIcon icon={cilUser} className="me-2" />
           Profil
         </CDropdownItem>
-        <CDropdownItem href="#">
+        {/* <CDropdownItem href="#">
           <CIcon icon={cilSettings} className="me-2" />
           Settings
-        </CDropdownItem>
+        </CDropdownItem> */}
 
         <CDropdownDivider />
-        <CDropdownItem className="text-danger" href="#">
+        <CDropdownItem className="text-danger" href="/logout">
           <CIcon icon={cilArrowThickToLeft} className="me-2" />
           Keluar
         </CDropdownItem>

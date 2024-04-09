@@ -29,8 +29,9 @@ const Register = () => {
 
     if (Object.keys(formErrors).length === 0) {
       try {
+        console.log(formData)
         const response = await axios.post('/auth/register', {
-          name: formData.name,
+          username: formData.username,
           email: formData.email,
           password: formData.password,
         })
@@ -49,8 +50,8 @@ const Register = () => {
 
   const validateForm = (data) => {
     const errors = {}
-    if (!data.name.trim()) {
-      errors.name = 'Nama harus diisi'
+    if (!data.username.trim()) {
+      errors.username = 'Nama harus diisi'
     }
     if (!data.email.trim()) {
       errors.email = 'Email harus diisi'
@@ -77,15 +78,15 @@ const Register = () => {
                   <div className="mb-3">
                     <input
                       type="text"
-                      name="name"
-                      placeholder="Nama Pengguna"
+                      name="username"
+                      placeholder="Nama Lengkap"
                       autoComplete="username"
-                      className={`form-control ${errors.name ? 'is-invalid' : ''}`}
-                      value={formData.name}
+                      className={`form-control ${errors.username ? 'is-invalid' : ''}`}
+                      value={formData.username}
                       onChange={handleChange}
                     />
                   </div>
-                  <small className="text-danger">{errors.name}</small>
+                  <small className="text-danger">{errors.username}</small>
                   <div className="mb-3">
                     <input
                       type="text"

@@ -77,7 +77,6 @@ const Add = () => {
           link: formData.link,
         })
 
-        // Menampilkan Toast sukses
         toast.success('Data saved successfully', {
           type: 'top-right',
           autoClose: 3000, // Waktu tampilan Toast dalam milidetik
@@ -88,11 +87,9 @@ const Add = () => {
           progress: undefined,
         })
 
-        // TODO: Handle success, misalnya, redirect ke halaman daftar pekerjaan
         navigate('/certifications')
       } catch (error) {
         console.error('Error saving data:', error)
-        // Menampilkan Toast kesalahan
         toast.error('Error saving data. Please try again.', {
           type: 'top-center',
           autoClose: 3000,
@@ -102,8 +99,6 @@ const Add = () => {
           draggable: true,
           progress: undefined,
         })
-
-        // TODO: Handle error, misalnya, menampilkan pesan kesalahan
       }
     } else {
       console.log('Form tidak valid. Mohon isi semua field yang diperlukan.')

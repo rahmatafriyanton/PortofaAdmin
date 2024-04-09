@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useLogout from 'src/hooks/useLogout'
 
-const Register = () => {
+const Logout = () => {
   const navigate = useNavigate()
   const logout = useLogout()
 
@@ -18,4 +18,4 @@ const Register = () => {
   return null // Jika tidak ada elemen yang ingin ditampilkan, return null.
 }
 
-export default Register
+export default Logout

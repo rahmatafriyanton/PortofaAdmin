@@ -149,7 +149,6 @@ const EditJobs = () => {
           ...formData,
         })
 
-        // Menampilkan Toast sukses
         toast.success('Data saved successfully', {
           position: 'top-right',
           autoClose: 3000, // Waktu tampilan Toast dalam milidetik
@@ -160,12 +159,10 @@ const EditJobs = () => {
           progress: undefined,
         })
 
-        // TODO: Handle success, misalnya, redirect ke halaman daftar pekerjaan
         navigate('/users/edit')
       } catch (error) {
         console.error('Error saving data:', error)
 
-        // Menampilkan Toast kesalahan
         toast.error('Error saving data. Please try again.', {
           position: 'top-center',
           autoClose: 3000,
@@ -175,8 +172,6 @@ const EditJobs = () => {
           draggable: true,
           progress: undefined,
         })
-
-        // TODO: Handle error, misalnya, menampilkan pesan kesalahan
       }
     } else {
       console.log('Form tidak valid. Mohon isi semua field yang diperlukan.')
@@ -189,8 +184,8 @@ const EditJobs = () => {
         <div className="card card-data mb-4">
           <div className="card-header">
             <div>
-              <h3 className="title">Edit Keterampilan</h3>
-              <p className="sub-title">Isi formulir untuk menambah keterampilan Anda</p>
+              <h3 className="title">Edit Informasi Personal</h3>
+              <p className="sub-title">Isi formulir untuk mengubah Informasi Personal Anda</p>
             </div>
             <div className="action-container">
               <button
