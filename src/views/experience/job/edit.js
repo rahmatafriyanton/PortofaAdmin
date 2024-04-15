@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import useAxiosPrivate from 'src/hooks/useAxiosPrivate'
 import ReactQuill from 'react-quill' // Import library ReactQuill
 import 'react-quill/dist/quill.snow.css' // Import style untuk Quill
+import { QuillToolbar, modules, formats } from 'src/components/QuillToolbar'
 
 const EditJobs = () => {
   const navigate = useNavigate()
@@ -156,6 +157,18 @@ const EditJobs = () => {
     }
   }
 
+  const handleFixNowClick = async () => {
+    try {
+      const response = await axios_private.post(`/gpt`, {
+        text: formData.achievements,
+      })
+
+      console.log(response)
+    } catch (error) {
+      console.error('Error getting gpt data:', error)
+    }
+  }
+
   return (
     <div className="row">
       <div className="col-xs-12">
@@ -174,6 +187,7 @@ const EditJobs = () => {
               </button>
             </div>
           </div>
+
           <div className="card-body">
             {/* Form Tambah pekerjaan */}
             <form>
@@ -315,13 +329,15 @@ const EditJobs = () => {
                       Prestasi
                     </label>
 
-                    <ReactQuill
-                      value={formData.achievements}
-                      onChange={(value) => handleChange('achievements', value)}
-                      modules={{
-                        toolbar: [[{ list: 'bullet' }]],
-                      }}
-                    />
+                    <div>
+                      <QuillToolbar />
+                      <ReactQuill
+                        value={formData.achievements}
+                        onChange={(value) => handleChange('achievements', value)}
+                        modules={modules}
+                        formats={formats}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import useAxiosPrivate from 'src/hooks/useAxiosPrivate'
 import ReactQuill from 'react-quill' // Import library ReactQuill
 import 'react-quill/dist/quill.snow.css' // Import style untuk Quill
+import { QuillToolbar, modules, formats } from 'src/components/QuillToolbar'
 
 const AddOrganizations = () => {
   const navigate = useNavigate()
@@ -288,13 +289,15 @@ const AddOrganizations = () => {
                       Deskripsi Pekerjaan
                     </label>
 
-                    <ReactQuill
-                      value={formData.achievements}
-                      onChange={(value) => handleChange('achievements', value)}
-                      modules={{
-                        toolbar: [[{ list: 'bullet' }]],
-                      }}
-                    />
+                    <div>
+                      <QuillToolbar />
+                      <ReactQuill
+                        value={formData.achievements}
+                        onChange={(value) => handleChange('achievements', value)}
+                        modules={modules}
+                        formats={formats}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import useAxiosPrivate from 'src/hooks/useAxiosPrivate'
 import ReactQuill from 'react-quill' // Import library ReactQuill
 import 'react-quill/dist/quill.snow.css' // Import style untuk Quill
+import { QuillToolbar, modules, formats } from 'src/components/QuillToolbar'
 
 const EditJobs = () => {
   const navigate = useNavigate()

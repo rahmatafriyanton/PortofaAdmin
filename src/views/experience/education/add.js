@@ -330,13 +330,15 @@ const AddEducations = () => {
                       Aktifitas dan Pencapaian
                     </label>
 
-                    <ReactQuill
-                      value={formData.achievements}
-                      onChange={(value) => handleChange('achievements', value)}
-                      modules={{
-                        toolbar: [[{ list: 'bullet' }]],
-                      }}
-                    />
+                    <div>
+                      <QuillToolbar />
+                      <ReactQuill
+                        value={formData.achievements}
+                        onChange={(value) => handleChange('achievements', value)}
+                        modules={modules}
+                        formats={formats}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
