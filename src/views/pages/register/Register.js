@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import axios from 'src/api/axios'
 
 const Register = () => {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
-    name: '',
+    username: '',
     email: '',
     password: '',
     repeatPassword: '',
@@ -36,14 +36,20 @@ const Register = () => {
           password: formData.password,
         })
 
-        console.log('Pendaftaran berhasil:', response.data)
-        // Handle response as needed
+        // console.log('Pendaftaran berhasil:', response.data)
+
+        alert(`Akun dengan email ${response.data.email} berhasil dibuat!`)
 
         // Redirect to login page after successful registration
         navigate('/login')
       } catch (error) {
-        console.error('Pendaftaran gagal', error)
-        // Handle error as needed
+        const message = error.response.data.message
+        console.error('Pendaftaran gagal')
+        if (message) {
+          alert(message)
+        } else {
+          alert('Terjadi kesalahan, harap mencoba beberapa saat lagi!')
+        }
       }
     }
   }
@@ -51,7 +57,7 @@ const Register = () => {
   const validateForm = (data) => {
     const errors = {}
     if (!data.username.trim()) {
-      errors.username = 'Nama harus diisi'
+      errors.username = 'Username harus diisi'
     }
     if (!data.email.trim()) {
       errors.email = 'Email harus diisi'
@@ -69,24 +75,27 @@ const Register = () => {
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
       <div className="container">
         <div className="row justify-content-center">
-          <div className="col-md-9 col-lg-7 col-xl-6">
-            <div className="card mx-4">
-              <div className="card-body p-4">
+          <div className="col-md-5">
+            <div className="card card-login">
+              <div className="card-header">
+                <h3 className="card-title logo">Portofa.</h3>
+              </div>
+              <div className="card-body">
                 <form onSubmit={handleSubmit}>
-                  <h1>Daftar Akun</h1>
-                  <p className="text-medium-emphasis">Buat akun baru</p>
+                  <div className="title">Daftar Akun</div>
                   <div className="mb-3">
                     <input
                       type="text"
                       name="username"
-                      placeholder="Nama Lengkap"
+                      placeholder="Username"
                       autoComplete="username"
                       className={`form-control ${errors.username ? 'is-invalid' : ''}`}
                       value={formData.username}
                       onChange={handleChange}
                     />
+                    <small className="text-danger">{errors.username}</small>
                   </div>
-                  <small className="text-danger">{errors.username}</small>
+
                   <div className="mb-3">
                     <input
                       type="text"
@@ -97,8 +106,9 @@ const Register = () => {
                       value={formData.email}
                       onChange={handleChange}
                     />
+                    <small className="text-danger">{errors.email}</small>
                   </div>
-                  <small className="text-danger">{errors.email}</small>
+
                   <div className="mb-3">
                     <input
                       type="password"
@@ -109,8 +119,9 @@ const Register = () => {
                       value={formData.password}
                       onChange={handleChange}
                     />
+                    <small className="text-danger">{errors.password}</small>
                   </div>
-                  <small className="text-danger">{errors.password}</small>
+
                   <div className="mb-4">
                     <input
                       type="password"
@@ -121,12 +132,18 @@ const Register = () => {
                       value={formData.repeatPassword}
                       onChange={handleChange}
                     />
+                    <small className="text-danger">{errors.repeatPassword}</small>
                   </div>
-                  <small className="text-danger">{errors.repeatPassword}</small>
-                  <div className="d-grid">
-                    <button type="submit" className="btn btn-success">
-                      Buat Akun
+
+                  <div className="d-flex justify-content-end">
+                    <button type="submit" className="btn btn-primary">
+                      Daftar
                     </button>
+                  </div>
+
+                  <div className="register-intro">
+                    Sudah punya akun <b>portofa</b>? <br />
+                    <Link to="/register"> Masuk!</Link>
                   </div>
                 </form>
               </div>

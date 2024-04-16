@@ -192,3 +192,59 @@ button.btn:focus {
 }
 
 /* End Quill Custom Button */
+
+/* card-login */
+.card-login {
+  border: 1px solid #ced4da !important;
+  border-radius: 10px !important;
+}
+
+.card-login .card-header,
+.card-login .card-body {
+  padding: 10px 20px;
+}
+
+.card-login .card-header {
+  background-color: transparent;
+  border-bottom: 1px dashed #ced4da;
+}
+
+.card-login .card-header .logo {
+  font-size: 24px;
+  text-align: center;
+  padding: 0;
+  font-weight: 600;
+}
+
+.card-login .btn,
+.card-login .form-control {
+  border-radius: 10px;
+  padding: 8px 15px;
+  font-size: 14px;
+}
+
+.card-login .form-control {
+  border: 1px solid #ced4da;
+}
+
+.card-login .text-danger {
+  font-size: 12px;
+}
+
+.card-login .title {
+  margin-bottom: 15px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.card-login .register-intro {
+  text-align: center;
+  font-size: 14px;
+  padding: 20px 0;
+}
+
+.card-login .register-intro a {
+  text-decoration: none;
+  font-weight: 500;
+}
+/* end  card-login */
