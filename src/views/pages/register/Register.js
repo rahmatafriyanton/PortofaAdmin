@@ -143,7 +143,7 @@ const Register = () => {
 
                   <div className="register-intro">
                     Sudah punya akun <b>portofa</b>? <br />
-                    <Link to="/register"> Masuk!</Link>
+                    <Link to="/login"> Masuk!</Link>
                   </div>
                 </form>
               </div>

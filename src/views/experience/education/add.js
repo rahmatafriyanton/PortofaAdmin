@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import useAxiosPrivate from 'src/hooks/useAxiosPrivate'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
+import { QuillToolbar, modules, formats } from 'src/components/QuillToolbar'
 
 const AddEducations = () => {
   const navigate = useNavigate()

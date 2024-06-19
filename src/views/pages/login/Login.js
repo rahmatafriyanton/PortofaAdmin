@@ -33,6 +33,8 @@ const Login = () => {
           password: formData.password,
         })
 
+        console.log(response)
+
         alert('Login berhasil')
 
         // Dispatch action to set user in Redux state
@@ -51,7 +53,9 @@ const Login = () => {
 
         navigate('/dashboard')
       } catch (error) {
-        alert('Proses login gagal. Periksa email & password anda!', error)
+        console.log(error)
+        alert(error.message)
+        alert('Proses login gagal. Periksa email & password anda!')
       }
     }
   }
